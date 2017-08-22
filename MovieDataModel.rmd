@@ -1,0 +1,140 @@
+---
+title: "MovieDataInsight"
+author: "Nazima Khan"
+date: "January 26, 2017"
+output: html_document
+---
+### Task: To Visualize dataset of 5000 movie posters and other information(budget,rating,year of       release etc.) to provide some innovative insights about it
+
+### Looking at dataset I can see that the dependent features used in the dataset to analyze the movies performance are based on two factors
+* The practical entities such as color, director name, duration, gross, actor name, director, country ,language etc. 
+* The social media entities such as Facebook likes, critic reviews, imdb link etc.
+
+### Based on the data provided there are few questions that can answered such as 
+* What are values of budget by country?
+*	What drives gross?
+*	What is predictive model for duration?
+*	What is trend over title_year by color?
+*	What is the breakdown of Facebook likes by Country?
+*	Effect of gross income based on plot _keywords?
+
+
+### My Analysis :
+I am very much fascinated by the role played by Social media on both promotion and success of the movie. Traditionally the success of the movie before the social media period was dependent on actors, directors, press, publicity, and word of mouth. Now due to social media movies that are made in low budget may have higher gross turnover at the box office. 
+Movie audiences Facebook likes on the page of the Movie,Actors and Directors does seem to help bringing in more audience, Increase in gross and Imdb_score.
+Lets see the relation of the movie sucess w.r t facebook likes.......
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### ENVIRONMENT SETUP
+```{r,include=TRUE,warning=FALSE,message=FALSE}
+
+# Load the required packages (if packages are not available, install them first)
+for (package in c('caret','readr','ggplot2','magrittr','ggthemes','dplyr','corrplot','caTools')) {
+  if (!require(package, character.only=T, quietly=T)) {
+    install.packages(package)
+    library(package,character.only=T)
+  }
+}
+
+```
+
+```{r ,include=TRUE,warning=FALSE,message=FALSE}
+##Get the Data 
+# Read the csv file and save in an object called "linear_data"
+movie_data <- read.csv("C:/CompleteMLProjects/MovieDataModel/Movie_data.csv")
+
+# Peek into the data
+print(head(movie_data))
+
+#Convert the data into data frames
+movie_data <- as.data.frame(movie_data)
+
+# Check for the column names
+colnames(movie_data)
+
+# #Check for any NA values
+any(is.na(movie_data))
+
+movie_data <- na.omit(movie_data)
+# omit the rows with Na's 
+dim(movie_data)
+
+
+```
+
+### DATA VISUALIZATION
+```{r,include=TRUE,warning=FALSE, message=FALSE}
+#Let us use ggplot2 to visualize the data and get more understanding.
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+
+# Create a plot to understnd corelation between features in the dataframe.
+# Grab only the numeric columns
+num.cols <- sapply(movie_data, is.numeric)
+# filter numeric columns for corelation
+# Use cor function to grab the corerealtion between each pf numeric variable
+cor.data <- cor(movie_data[,num.cols])
+print(cor.data)
+```
+
+###Visualise the corelated data using 'corrplot' 
+```{r,include=TRUE,warning=FALSE,message=FALSE}
+library(corrplot)
+print(corrplot(cor.data, method = 'color'))
+#We can observe here that here that features such as gross and number of voted user are high correlated to each other. 
+# Also there seems to be some inverse corelation  between (title_year ,duration,imdb_score and budget
+```
+
+```{r}
+# Lets Visualize the relation between Facebook likes,Imdb score and gross 
+
+# Visualize plot w.r.t number of likes on Movie face book page
+ggplot(movie_data,aes(movie_facebook_likes)) + geom_histogram()
+
+movie_data %>% select(movie_facebook_likes,gross,imdb_score) %>%
+ggplot(aes(movie_facebook_likes,imdb_score,color=gross))+ geom_point() +
+scale_colour_gradient( low="green", high="red")
+# we can see the more no of likes on Movie facebook page reflects few higher gross and higher imdb rating.
+```
+
+```{r}
+
+# Visualize relation between Actor, director and cast facbook likes w.r.t imdb_score and gross
+# Actor 1 facebook_likes
+movie_data %>% select(actor_1_facebook_likes,gross,imdb_score) %>%
+ggplot(aes(actor_1_facebook_likes,imdb_score,color=gross))+ geom_point() +
+scale_colour_gradient( low="green", high="red")
+ # For  Actor_1 facebook likes are but less but have higher gross and higher imdb rating. 
+# So for good gross and imdb scores the first actor should be big or popular enough to overcome his/her presence in social media.
+
+# Actor 2 facebook_likes
+movie_data %>% select(actor_2_facebook_likes,gross,imdb_score) %>%
+ggplot(aes(actor_2_facebook_likes,imdb_score,color=gross))+ geom_point() +
+scale_colour_gradient( low="green", high="red")
+# Actor_2 seems to be in median range 
+
+# Actor 3
+movie_data %>% select(actor_3_facebook_likes,gross,imdb_score) %>%
+ggplot(aes(actor_3_facebook_likes,imdb_score,color=gross))+ geom_point() +
+scale_colour_gradient( low="green", high="red")
+# Actor3 facebook likes seems to give a big variace here.
+# More number of Facebook likes have very less affect  on the  gross, so even big and popular star acting as Actor_3 will not help in movie success
+
+
+# Director_facebook_likes
+movie_data %>% select(director_facebook_likes,gross,imdb_score) %>%
+ggplot(aes(director_facebook_likes,imdb_score,color=gross))+ geom_point() +
+scale_colour_gradient( low="green", high="red")
+# Director with most Facebook likes gave the most gross but not always.
+
+# cast total facebook likes
+movie_data %>% select(cast_total_facebook_likes,gross,imdb_score) %>%
+ggplot(aes(cast_total_facebook_likes,imdb_score,color=gross))+ geom_point() +
+scale_colour_gradient( low="green", high="red")
+# Popularity of the total cast on facebook seems to be making not much effect on the gross and imdb_score of the movie.Highest gross and imdb_score have less facebook likes.
+```
+
+### Further we can also visualize other features such as Critic ratings, imdb links etc to find how the impact Social media makes on the success of movies in today's times. Also we can make two separate tables one with social media aspects and other without. And compare both of them to see before the social media time how movies performed. This analysis can be formulated to promote the success of the film at some remote place in any part of the world where movie lovers are not much into social media.
