@@ -5,7 +5,6 @@ for (package in c('caret','readr','ggplot2','magrittr','ggthemes','dplyr','corrp
     library(package,character.only=T)
   }
 }
-
 # Read the csv file and save in an object called "imdb"
 imdb <- read.csv("C:/CompleteMLProjects/MovieDataModel/imdb_whole.csv")
 
